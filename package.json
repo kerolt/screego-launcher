@@ -50,7 +50,8 @@
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
-        "dir"
+        "dmg",
+        "zip"
       ]
     }
   }

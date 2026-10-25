@@ -1,0 +1,42 @@
+name: Release
+
+# Push a tag like v0.1.0 to build the macOS app and attach it to a GitHub release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release-macos:
+    runs-on: macos-latest # arm64 runner -> darwin-arm64 build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # dist = pack:core (download screego core) + typecheck + electron-vite build
+      # + electron-builder --mac (dmg + zip, unsigned)
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build & package macOS app
+        run: npm run dist
+
+      - name: Generate checksums
+        run: cd dist && shasum -a 256 *.dmg *.zip > SHA256SUMS.txt
+
+      - name: Upload to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.dmg
+            dist/*.zip
+            dist/SHA256SUMS.txt
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
