@@ -1,0 +1,6 @@
+node_modules/
+dist/
+assets/cores/*
+!assets/cores/.gitkeep
+*.log
+.DS_Store
