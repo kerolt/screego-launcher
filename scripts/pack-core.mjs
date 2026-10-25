@@ -46,11 +46,18 @@ const TARGETS = has('all')
       ],
     ];
 
+/** Authenticated when CI provides GITHUB_TOKEN; avoids anonymous rate limits. */
+function githubHeaders() {
+  const headers = { 'User-Agent': 'screego-launcher' };
+  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  return headers;
+}
+
 async function getRelease(version) {
   const url = version
     ? `https://api.github.com/repos/${REPO}/releases/tags/${version}`
     : `https://api.github.com/repos/${REPO}/releases/latest`;
-  const res = await fetch(url, { headers: { 'User-Agent': 'screego-launcher' } });
+  const res = await fetch(url, { headers: githubHeaders() });
   if (!res.ok) throw new Error(`GitHub API responded ${res.status} for ${url}`);
   return res.json();
 }

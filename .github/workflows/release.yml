@@ -26,6 +26,11 @@ jobs:
 
       - name: Build & package macOS app
         run: npm run dist
+        env:
+          # pack:core uses it for GitHub API requests (rate-limit headroom);
+          # electron-builder itself must NOT publish (--publish never in the
+          # npm script) — uploading is done by action-gh-release below.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate checksums
         run: cd dist && shasum -a 256 *.dmg *.zip > SHA256SUMS.txt
